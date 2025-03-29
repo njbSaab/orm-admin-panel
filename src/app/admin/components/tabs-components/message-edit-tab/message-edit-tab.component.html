@@ -1,0 +1,317 @@
+<section class="tab-item w-full">
+  <div *ngIf="messages.length > 0; else loading">
+    <div
+      class="header-tab flex items-center justify-between px-[20px] py-[20px] my-[20px] radius-30 w-fit gap-4 mx-auto tracking-wide bg-base-100 shadow-block mb-[40px]"
+    >
+      <h2 class="title-tab text-xl font-bold text-gray-600">Messages bot</h2>
+      <p
+        class="text-right flex gap-2 items-center bg-main px-[15px] py-[5px] text-indigo-500"
+      >
+        Всего сообщений:
+        <span class="font-bold text-4xl">{{ messages.length }}</span>
+      </p>
+    </div>
+
+    <div
+      *ngIf="successMessage"
+      class="alert alert-success mb-4 relative flex justify-between"
+    >
+      <b>{{ successMessage }}</b>
+      <span class="close" (click)="closeSuccessMessage()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8s8 3.59 8 8s-3.59 8-8 8m3.59-13L12 10.59L8.41 7L7 8.41L10.59 12L7 15.59L8.41 17L12 13.41L15.59 17L17 15.59L13.41 12L17 8.41z"
+          />
+        </svg>
+      </span>
+    </div>
+
+    <div *ngIf="errorMessage" class="alert alert-error relative">
+      {{ errorMessage }}
+      <span class="close" (click)="closeErrorMessage()">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          width="36"
+          height="36"
+          viewBox="0 0 24 24"
+        >
+          <path
+            fill="currentColor"
+            d="M12 2C6.47 2 2 6.47 2 12s4.47 10 10 10s10-4.47 10-10S17.53 2 12 2m0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8s8 3.59 8 8s-3.59 8-8 8m3.59-13L12 10.59L8.41 7L7 8.41L10.59 12L7 15.59L8.41 17L12 13.41L15.59 17L17 15.59L13.41 12L17 8.41z"
+          />
+        </svg>
+      </span>
+    </div>
+
+    <div class="card-list lg:grid grid-cols-2">
+      <div
+        *ngFor="let message of messages; index as i"
+        class="card-wrapper bg-main-trans-gradient-0 pb-[30px]"
+      >
+        <div
+          class="card-wrapper-title flex items-center w-fit gap-8 justify-between mb-[8px] mx-auto"
+        >
+          <div class="card-title-group flex justify-between items-center">
+            <p class="number text-lg">
+              💬
+              <span class="font-bold text-indigo-600"
+                >Сообщение №{{ i + 1 }}</span
+              >
+            </p>
+          </div>
+          <div class="card-date flex items-center gap-2">
+            <p class="text-xs text-gray-500">
+              Дата создания: {{ message.created_at | date : "medium" }}
+            </p>
+          </div>
+        </div>
+
+        <!-- Карточка -->
+        <div class="card bg-base-100 mx-auto w-[80%] lg:w-[90%] shadow-block">
+          <div *ngIf="!message.isEditing; else editMode">
+            <figure *ngIf="message.message_image_url">
+              <img [src]="message.message_image_url" alt="Message image" />
+            </figure>
+            <div class="card-body">
+              <p class="text-gray-600">ID: {{ message.id }}</p>
+              <p class="text-indigo-400 font-bold text-lg">Заголовок:</p>
+              <p class="mt-[-5px] text-lg">
+                {{ message.message_title || "Без заголовка" }}
+              </p>
+              <p class="text-indigo-400 font-bold text-lg">Содержимое:</p>
+              <p class="pb-[5px] text-sm">
+                {{ message.message_content || "Без содержимого" }}
+              </p>
+              <div class="card-actions justify-center pt-[20px]">
+                <button
+                  class="btn btn-ghost btn-info pr-0"
+                  (click)="toggleEdit(message)"
+                >
+                  Редактировать
+                  <span class="btn btn-soft btn-info">
+                    <app-edit-ico></app-edit-ico>
+                  </span>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <!-- Режим редактирования сообщения -->
+          <ng-template #editMode>
+            <div>
+              <figure *ngIf="message.message_image_url">
+                <img [src]="message.message_image_url" alt="Message image" />
+              </figure>
+              <div class="mt-4 px-[32px]">
+                <label for="image-url" class="block text-sm text-indigo-400">
+                  Вставьте ссылку на изображение, пример:
+                  <b>https://image.com</b>
+                  <span
+                    *ngIf="
+                      message.message_image_url &&
+                      !isValidImageUrl(message.message_image_url)
+                    "
+                    class="text-red-500 text-sm mt-2 block pt-2"
+                  >
+                    {{
+                      "Неверный домен, вставьте изображение с начальним доменом" +
+                        " https://1xjet.jp/tgadmin/image/example.png или" +
+                        " https://1xjet.netlify.app/example.png"
+                    }}
+                  </span>
+                </label>
+                <div class="flex items-center mt-2">
+                  <input
+                    [(ngModel)]="message.message_image_url"
+                    type="text"
+                    placeholder="https://image.com"
+                    (blur)="refreshImage(message)"
+                    class="input block w-full placeholder-gray-500 border border-indigo-200 bg-white px-5 py-2.5 text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-40"
+                  />
+                </div>
+              </div>
+              <div class="card-body">
+                <label
+                  for="title"
+                  class="block text-sm text-indigo-400 font-bold"
+                >
+                  Название сообщения
+                </label>
+                <input
+                  [(ngModel)]="message.message_title"
+                  type="text"
+                  placeholder="Введите заголовок"
+                  class="input block w-full mt-2 placeholder-gray-500 border border-indigo-200 bg-white px-5 py-2.5 text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-40"
+                />
+                <label
+                  for="content"
+                  class="block text-sm text-indigo-400 font-bold mt-4"
+                >
+                  Контент сообщения
+                </label>
+                <textarea
+                  [(ngModel)]="message.message_content"
+                  placeholder="Содержимое сообщения"
+                  class="block mt-2 w-full h-[320px] placeholder-gray-500 border border-indigo-200 bg-white px-4 py-2.5 text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-40 rounded-[22px]"
+                ></textarea>
+                <div class="card-actions justify-center pt-[20px]">
+                  <span
+                    (click)="message.isEditing = false"
+                    class="btn btn-ghost btn-error"
+                  >
+                    <app-cancel-ico></app-cancel-ico>
+                  </span>
+                  <button
+                    class="btn btn-ghost btn-success pr-0 text-success"
+                    (click)="saveChanges(message)"
+                    [disabled]="
+                      message.message_image_url &&
+                      !isValidImageUrl(message.message_image_url)
+                    "
+                  >
+                    Сохранить
+                    <span class="btn btn-soft btn-success">
+                      <app-done-ico></app-done-ico>
+                    </span>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </div>
+
+        <!-- Кнопки за карточкой -->
+        <div
+          *ngIf="message.buttons?.length"
+          class="flex flex-col gap-2 mt-4 mx-auto w-[80%] lg:w-[90%]"
+        >
+          <h4 class="text-lg font-bold text-indigo-600">Кнопки сообщения:</h4>
+          <div
+            *ngFor="let buttonWrapper of message.buttons"
+            class="bg-reg collapse collapse-arrow shadow-block radius-20"
+          >
+            <input type="checkbox" class="peer" />
+            <div
+              class="collapse-title text-indigo-400 bg-reg peer-checked:bg-info peer-checked:text-white font-bold text-lg"
+            >
+              {{ buttonWrapper.button.name }}
+            </div>
+            <div class="collapse-content">
+              <div
+                *ngIf="!buttonWrapper.isEditing"
+                class="sub-btn-date flex justify-between text-gray-400 text-[10px] py-[5px]"
+              >
+                <span
+                  >Дата создания:
+                  {{ buttonWrapper.button.created_at | date : "medium" }}</span
+                >
+                <span
+                  >Обновлено:
+                  {{ buttonWrapper.button.updated_at | date : "medium" }}</span
+                >
+              </div>
+              <div class="sub-btn-body-wrapper">
+                <div
+                  *ngIf="!buttonWrapper.isEditing"
+                  class="sub-btn-body flex flex-col"
+                >
+                  <div class="flex justify-between items-center">
+                    <div
+                      class="sub-btn-body-title text-lg font-bold text-indigo-400 flex gap-2"
+                    >
+                      <span>{{ buttonWrapper.button.name }}</span>
+                    </div>
+                    <div
+                      class="sub-btn-body-order font-bold flex gap-4 items-center"
+                    >
+                      <div class="order">
+                        Order:
+                        <span class="nj-toast-trans">{{
+                          buttonWrapper.button.order
+                        }}</span>
+                      </div>
+                      <span
+                        class="btn btn-info"
+                        (click)="toggleButtonEdit(buttonWrapper)"
+                      >
+                        <app-edit-ico></app-edit-ico>
+                      </span>
+                    </div>
+                  </div>
+                  <div
+                    class="sub-btn-url w-[100%] overflow-hidden"
+                    *ngIf="buttonWrapper.button.url"
+                  >
+                    <span class="text-gray-500 text-sm"
+                      >🔗 Ссылка на ресурс:
+                    </span>
+                    <span class="text-nowrap overflow-x-auto">
+                      <b>{{ buttonWrapper.button.url }}</b>
+                    </span>
+                  </div>
+                </div>
+                <!-- Режим редактирования кнопки -->
+                <div
+                  *ngIf="buttonWrapper.isEditing"
+                  class="flex flex-col items-center"
+                >
+                  <div
+                    class="form-group-wrapper flex flex-col flex-1 items-center pt-4 w-full"
+                  >
+                    <div class="form-group w-[90%]">
+                      <label class="block text-sm text-indigo-400 font-bold"
+                        >Название кнопки:</label
+                      >
+                      <input
+                        [(ngModel)]="buttonWrapper.button.name"
+                        class="input w-full mt-2 mb-4 border border-gray-300 rounded-lg px-4 py-2.5 focus:ring focus:ring-blue-300 focus:ring-opacity-40"
+                        placeholder="Редактировать название"
+                      />
+                    </div>
+                    <div class="form-group w-[90%]">
+                      <label class="block text-sm text-indigo-400 font-bold"
+                        >Ссылка (необязательно):</label
+                      >
+                      <input
+                        [(ngModel)]="buttonWrapper.button.url"
+                        class="input w-full mt-2 mb-4 border border-gray-300 rounded-lg px-4 py-2.5 focus:ring focus:ring-blue-300 focus:ring-opacity-40"
+                        placeholder="Редактировать URL"
+                      />
+                    </div>
+                  </div>
+                  <div class="btn-group flex items-center gap-2 pt-1">
+                    <span
+                      class="btn btn-ghost btn-error"
+                      (click)="toggleButtonEdit(buttonWrapper)"
+                    >
+                      <app-cancel-ico></app-cancel-ico>
+                    </span>
+
+                    <button
+                      class="btn btn-ghost btn-success pr-0 text-success"
+                      (click)="saveButtonChanges(message, buttonWrapper)"
+                    >
+                      Сохранить
+                      <span class="btn btn-soft btn-success">
+                        <app-done-ico></app-done-ico>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <ng-template #loading>
+    <app-loader></app-loader>
+  </ng-template>
+</section>

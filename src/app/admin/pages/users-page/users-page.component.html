@@ -1,0 +1,122 @@
+<section class="added-image py-[0px] px-[10px] min-h-screen">
+  <div
+    class="header-title shadow-block flex items-center justify-between w-[100%]"
+  >
+    <h1 class="title text-2xl font-bold text-indigo-500">Users</h1>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+    >
+      <path
+        fill="#4f45e5"
+        d="M12 15c-2.5 0 -3.25 0 -4 0c-0.55 0 -1 0 -1 0c0 0 1.5 0 5 0c3.5 0 5 0 5 0c0 0 -0.45 0 -1 0c-0.75 0 -1.5 0 -4 0Z"
+      >
+        <animate
+          fill="freeze"
+          attributeName="d"
+          begin="1.1s"
+          dur="0.2s"
+          values="M12 15c-2.5 0 -3.25 0 -4 0c-0.55 0 -1 0 -1 0c0 0 1.5 0 5 0c3.5 0 5 0 5 0c0 0 -0.45 0 -1 0c-0.75 0 -1.5 0 -4 0Z;M12 14c-2.5 0 -3.25 -1 -4 -1c-0.55 0 -1 0.45 -1 1c0 0.75 1.5 4 5 4c3.5 0 5 -3.25 5 -4c0 -0.55 -0.45 -1 -1 -1c-0.75 0 -1.5 1 -4 1Z"
+        />
+      </path>
+      <g
+        fill="none"
+        stroke="#4f45e5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+      >
+        <path
+          stroke-dasharray="64"
+          stroke-dashoffset="64"
+          d="M12 3c4.97 0 9 4.03 9 9c0 4.97 -4.03 9 -9 9c-4.97 0 -9 -4.03 -9 -9c0 -4.97 4.03 -9 9 -9"
+        >
+          <animate
+            fill="freeze"
+            attributeName="stroke-dashoffset"
+            dur="0.6s"
+            values="64;0"
+          />
+        </path>
+        <path stroke-dasharray="2" stroke-dashoffset="2" d="M9 9v1">
+          <animate
+            fill="freeze"
+            attributeName="stroke-dashoffset"
+            begin="0.7s"
+            dur="0.2s"
+            values="2;0"
+          />
+        </path>
+        <path stroke-dasharray="2" stroke-dashoffset="2" d="M15 9v1">
+          <animate
+            fill="freeze"
+            attributeName="stroke-dashoffset"
+            begin="0.9s"
+            dur="0.2s"
+            values="2;0"
+          />
+        </path>
+      </g>
+    </svg>
+  </div>
+  <div class="radius-30 shadow-block h-[90vh]">
+    <div class="content">
+      <ng-container *ngIf="isLoading"><app-loader></app-loader></ng-container>
+      <ng-container *ngIf="!isLoading && error">{{ error }}</ng-container>
+
+      <div *ngIf="!isLoading && users.length" class="overflow-x-auto mt-4">
+        <table
+          class="table-auto w-full text-sm text-left text-gray-700 border-collapse radius-30 overflow-hidden"
+        >
+          <thead class="bg-indigo-100 text-indigo-600 font-bold">
+            <tr>
+              <th class="px-4 py-2">#</th>
+              <th class="px-4 py-2">Telegram ID</th>
+              <th class="px-4 py-2">First Name</th>
+              <th class="px-4 py-2">Last Name</th>
+              <th class="px-4 py-2">Username</th>
+              <th class="px-4 py-2">Email</th>
+              <th class="px-4 py-2">State</th>
+              <th class="px-4 py-2">isBot</th>
+              <th class="px-4 py-2">Lang</th>
+              <th class="px-4 py-2">Updated</th>
+              <th class="px-4 py-2">Subscriptions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr
+              *ngFor="let user of users; let i = index"
+              [ngClass]="{
+                'bg-gray-50': i % 2 === 0,
+                'hover:bg-indigo-50 transition': true
+              }"
+            >
+              <td class="px-4 py-2 font-medium">{{ i + 1 }}</td>
+              <td class="px-4 py-2">{{ user.id }}</td>
+              <td class="px-4 py-2">{{ user.first_name }}</td>
+              <td class="px-4 py-2">{{ user.last_name || "-" }}</td>
+              <td class="px-4 py-2">{{ user.username || "-" }}</td>
+              <td class="px-4 py-2">{{ user.email || "-" }}</td>
+              <td class="px-4 py-2">{{ user.state }}</td>
+              <td class="px-4 py-2">{{ user.is_bot }}</td>
+              <td class="px-4 py-2">{{ user.language_code }}</td>
+              <td class="px-4 py-2">{{ user.updated_at.slice(0, 16) }}</td>
+              <td class="px-4 py-2">
+                <ng-template #noSubs>-</ng-template>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div
+        *ngIf="!isLoading && !users.length"
+        class="text-center text-gray-500 mt-4"
+      >
+        No users found.
+      </div>
+    </div>
+  </div>
+</section>

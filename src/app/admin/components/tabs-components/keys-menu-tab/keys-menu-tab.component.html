@@ -1,0 +1,620 @@
+<section class="keys-menu tab-item w-full">
+  <div *ngIf="keysMenus.length > 0; else loading">
+    <!-- Заголовок страницы -->
+    <div
+      class="header-tab flex items-center justify-between px-[20px] py-[20px] my-[20px] mb-[40px] radius-30 w-fit gap-4 mx-auto tracking-wide bg-base-100 shadow-block"
+    >
+      <h2 class="title-tab text-xl font-bold text-gray-600">Buttons menu</h2>
+      <p
+        class="text-right flex gap-2 items-center bg-main px-[15px] py-[5px] text-indigo-500"
+      >
+        Всего кнопок меню:
+        <span class="font-bold text-4xl">{{ keysMenus.length }}</span>
+      </p>
+    </div>
+
+    <!-- Группы меню -->
+    <div class="w-[80%] mx-auto">
+      <!-- Группа parentId: null (уровень 0) -->
+      <div class="mb-8">
+        <h3 class="text-xl font-bold text-indigo-600 mb-4">Основное меню</h3>
+        <div *ngFor="let menu of getMenusByParentId(null); let i = index">
+          <div
+            class="collapse hover-shadow card-body bg-base-100 my-4 rounded-xl p-[20px] pb-[10px] shadow-block"
+          >
+            <input type="checkbox" (click)="toggleClick(i)" />
+            <div
+              class="collapse-title text-xl font-medium flex items-center justify-between radius-30 cursor-pointer"
+              [ngClass]="{ 'bg-main': activeIndexes.has(i) }"
+            >
+              <h3 class="text-gray-600 font-bold text-xl">
+                <span class="text-gray-600 pr-2">{{ menu.order + 1 }}</span>
+                {{ menu.name || "Unnamed" }}
+              </h3>
+              <button
+                class="btn btn-ghost btn-info pr-0 relative z-10"
+                (click)="toggleEdit(menu, $event)"
+              >
+                Редактировать
+                <span class="btn btn-soft btn-info">
+                  <app-edit-ico></app-edit-ico>
+                </span>
+              </button>
+            </div>
+
+            <div class="collapse-content px-0">
+              <div *ngIf="!menu.isEditing; else editForm">
+                <div
+                  class="flex justify-between py-4 items-center w-[95%] mx-auto"
+                >
+                  <p class="number text-lg">
+                    💬
+                    <span class="font-bold text-indigo-600"
+                      >Сообщение №{{ i + 1 }}</span
+                    >
+                    <span class="nj-toast">
+                      {{
+                        getMenuLevel(menu) !== null ? getMenuLevel(menu) : "N/A"
+                      }}
+                    </span>
+                  </p>
+                  <p class="text-end text-gray-400 text-xs flex-auto">
+                    Последнее обновление:
+                    {{ menu.updated_at | date : "medium" }}
+                  </p>
+                </div>
+
+                <!-- Связанный пост -->
+                <div class="menu-post-item mb-[40px]" *ngIf="menu.linked_post">
+                  <div class="card bg-base-100 mx-auto w-[100%] shadow-block">
+                    <div *ngIf="menu.linked_post.message_image_url">
+                      <figure>
+                        <img
+                          [src]="
+                            menu.linked_post.message_image_url ||
+                            'path/to/fallback-image.jpg'
+                          "
+                          alt="Post Image"
+                        />
+                      </figure>
+                    </div>
+                    <div class="card-body">
+                      <p class="text-indigo-600">
+                        ID: {{ menu.linked_post.id }}
+                      </p>
+                      <h3 class="text-xl text-indigo-400 font-bold">
+                        {{ menu.linked_post.message_title || "No Title" }}
+                      </h3>
+                      <p>
+                        {{ menu.linked_post.message_content || "No Content" }}
+                      </p>
+                    </div>
+                  </div>
+
+                  <!-- Кнопки связанного поста -->
+                  <div
+                    *ngIf="menu.linked_post.buttons?.length"
+                    class="flex flex-col gap-2 mt-4"
+                  >
+                    <h4 class="text-lg font-bold text-indigo-400">
+                      Кнопки поста:
+                    </h4>
+                    <div
+                      *ngFor="let buttonWrapper of menu.linked_post.buttons"
+                      class="collapse collapse-arrow bg-base-100 shadow-block rounded-[22px]"
+                    >
+                      <input type="checkbox" class="peer" />
+                      <div
+                        class="collapse-title text-indigo-400 bg-base-100 peer-checked:bg-main peer-checked:text-white font-bold text-lg"
+                      >
+                        {{ buttonWrapper.button.name || "Unnamed Button" }}
+                      </div>
+                      <div class="collapse-content">
+                        <div
+                          class="sub-btn-date flex justify-between text-gray-400 text-xs py-2 px-4"
+                        >
+                          <span>
+                            Дата создания:
+                            {{
+                              buttonWrapper.button.created_at | date : "medium"
+                            }}
+                          </span>
+                          <span>
+                            Обновлено:
+                            {{
+                              buttonWrapper.button.updated_at | date : "medium"
+                            }}
+                          </span>
+                        </div>
+                        <div class="sub-btn-body-wrapper flex flex-col gap-2">
+                          <div
+                            class="sub-btn-body flex justify-between items-center"
+                          >
+                            <div
+                              class="sub-btn-body-title text-lg font-bold text-indigo-400 flex gap-2"
+                            >
+                              <span>{{
+                                buttonWrapper.button.name || "Unnamed Button"
+                              }}</span>
+                            </div>
+                            <div
+                              class="sub-btn-body-order font-bold flex gap-4 items-center"
+                            >
+                              <div class="order">
+                                Order:
+                                <span class="nj-toast-trans">{{
+                                  buttonWrapper.button.order
+                                }}</span>
+                              </div>
+                            </div>
+                          </div>
+                          <div
+                            class="sub-btn-url"
+                            *ngIf="buttonWrapper.button.url"
+                          >
+                            Url: {{ buttonWrapper.button.url }}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Форма редактирования -->
+              <ng-template #editForm>
+                <div class="card-body edit-form">
+                  <label class="block text-sm text-indigo-400 font-bold"
+                    >Название меню</label
+                  >
+                  <input
+                    [(ngModel)]="menu.name"
+                    type="text"
+                    placeholder="Введите название"
+                    class="input block w-full mt-2 placeholder-gray-500 border border-indigo-200 bg-white px-5 py-2.5 text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-40"
+                  />
+                  <label class="block text-sm text-indigo-400 font-bold mt-4"
+                    >Описание</label
+                  >
+                  <textarea
+                    [(ngModel)]="menu.description"
+                    placeholder="Описание меню"
+                    class="block mt-2 w-full h-[100px] placeholder-gray-500 border border-indigo-200 bg-white px-4 py-2.5 text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-40 rounded-[22px]"
+                  ></textarea>
+                  <div class="card-actions justify-center pt-[20px]">
+                    <button
+                      class="btn btn-ghost btn-error"
+                      (click)="toggleEdit(menu)"
+                    >
+                      <app-cancel-ico></app-cancel-ico>
+                    </button>
+                    <button
+                      class="btn btn-ghost btn-success pr-0 text-success"
+                      (click)="saveChanges(menu)"
+                    >
+                      Сохранить
+                      <span class="btn btn-soft btn-success">
+                        <app-done-ico></app-done-ico>
+                      </span>
+                    </button>
+                  </div>
+                </div>
+              </ng-template>
+            </div>
+          </div>
+        </div>
+
+        <!-- Группа parentId: 3 (уровень 1) -->
+        <div class="mb-8">
+          <h3 class="text-xl font-bold text-indigo-600 mb-4">
+            Меню по кнопке 3
+          </h3>
+          <div *ngFor="let menu of getMenusByParentId(3); let i = index">
+            <div
+              class="collapse hover-shadow card-body bg-base-100 my-4 rounded-xl p-[20px] pb-[10px] shadow-block"
+            >
+              <input type="checkbox" (click)="toggleClick(i)" />
+              <div
+                class="collapse-title text-xl font-medium flex items-center justify-between radius-30 cursor-pointer"
+                [ngClass]="{ 'bg-main': activeIndexes.has(i) }"
+              >
+                <h3 class="text-gray-600 font-bold text-xl">
+                  <span class="text-gray-600 pr-2">{{
+                    menu.order + 1 + 3
+                  }}</span>
+                  {{ menu.name || "Unnamed" }}
+                </h3>
+                <button
+                  class="btn btn-ghost btn-info pr-0 relative z-10"
+                  (click)="toggleEdit(menu, $event)"
+                >
+                  Редактировать
+                  <span class="btn btn-soft btn-info">
+                    <app-edit-ico></app-edit-ico>
+                  </span>
+                </button>
+              </div>
+
+              <div class="collapse-content px-0">
+                <div *ngIf="!menu.isEditing; else editForm">
+                  <div
+                    class="flex justify-between py-4 items-center w-[95%] mx-auto"
+                  >
+                    <p class="number text-lg">
+                      💬
+                      <span class="font-bold text-indigo-600"
+                        >Сообщение №{{ i + 1 }}</span
+                      >
+                      <span class="nj-toast">
+                        {{
+                          getMenuLevel(menu) !== null
+                            ? getMenuLevel(menu)
+                            : "N/A"
+                        }}
+                      </span>
+                    </p>
+                    <p class="text-end text-gray-400 text-xs flex-auto">
+                      Последнее обновление:
+                      {{ menu.updated_at | date : "medium" }}
+                    </p>
+                  </div>
+
+                  <!-- Связанный пост -->
+                  <div
+                    class="menu-post-item mb-[40px]"
+                    *ngIf="menu.linked_post"
+                  >
+                    <div class="card bg-base-100 mx-auto w-[100%] shadow-block">
+                      <div *ngIf="menu.linked_post.message_image_url">
+                        <figure>
+                          <img
+                            [src]="
+                              menu.linked_post.message_image_url ||
+                              'path/to/fallback-image.jpg'
+                            "
+                            alt="Post Image"
+                          />
+                        </figure>
+                      </div>
+                      <div class="card-body">
+                        <p class="text-indigo-600">
+                          ID: {{ menu.linked_post.id }}
+                        </p>
+                        <h3 class="text-xl text-indigo-400 font-bold">
+                          {{ menu.linked_post.message_title || "No Title" }}
+                        </h3>
+                        <p>
+                          {{ menu.linked_post.message_content || "No Content" }}
+                        </p>
+                      </div>
+                    </div>
+
+                    <!-- Кнопки связанного поста -->
+                    <div
+                      *ngIf="menu.linked_post.buttons?.length"
+                      class="flex flex-col gap-2 mt-4"
+                    >
+                      <h4 class="text-lg font-bold text-indigo-400">
+                        Кнопки поста:
+                      </h4>
+                      <div
+                        *ngFor="let buttonWrapper of menu.linked_post.buttons"
+                        class="collapse collapse-arrow bg-base-100 shadow-block rounded-[22px]"
+                      >
+                        <input type="checkbox" class="peer" />
+                        <div
+                          class="collapse-title text-indigo-400 bg-base-100 peer-checked:bg-main peer-checked:text-white font-bold text-lg"
+                        >
+                          {{ buttonWrapper.button.name || "Unnamed Button" }}
+                        </div>
+                        <div class="collapse-content">
+                          <div
+                            class="sub-btn-date flex justify-between text-gray-400 text-xs py-2 px-4"
+                          >
+                            <span>
+                              Дата создания:
+                              {{
+                                buttonWrapper.button.created_at
+                                  | date : "medium"
+                              }}
+                            </span>
+                            <span>
+                              Обновлено:
+                              {{
+                                buttonWrapper.button.updated_at
+                                  | date : "medium"
+                              }}
+                            </span>
+                          </div>
+                          <div class="sub-btn-body-wrapper flex flex-col gap-2">
+                            <div
+                              class="sub-btn-body flex justify-between items-center"
+                            >
+                              <div
+                                class="sub-btn-body-title text-lg font-bold text-indigo-400 flex gap-2"
+                              >
+                                <span>{{
+                                  buttonWrapper.button.name || "Unnamed Button"
+                                }}</span>
+                              </div>
+                              <div
+                                class="sub-btn-body-order font-bold flex gap-4 items-center"
+                              >
+                                <div class="order">
+                                  Order:
+                                  <span class="nj-toast-trans">{{
+                                    buttonWrapper.button.order
+                                  }}</span>
+                                </div>
+                              </div>
+                            </div>
+                            <div
+                              class="sub-btn-url"
+                              *ngIf="buttonWrapper.button.url"
+                            >
+                              Url: {{ buttonWrapper.button.url }}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Форма редактирования -->
+                <ng-template #editForm>
+                  <div class="card-body edit-form">
+                    <label class="block text-sm text-indigo-400 font-bold"
+                      >Название меню</label
+                    >
+                    <input
+                      [(ngModel)]="menu.name"
+                      type="text"
+                      placeholder="Введите название"
+                      class="input block w-full mt-2 placeholder-gray-500 border border-indigo-200 bg-white px-5 py-2.5 text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-40"
+                    />
+                    <label class="block text-sm text-indigo-400 font-bold mt-4"
+                      >Описание</label
+                    >
+                    <textarea
+                      [(ngModel)]="menu.description"
+                      placeholder="Описание меню"
+                      class="block mt-2 w-full h-[100px] placeholder-gray-500 border border-indigo-200 bg-white px-4 py-2.5 text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-40 rounded-[22px]"
+                    ></textarea>
+                    <div class="card-actions justify-center pt-[20px]">
+                      <button
+                        class="btn btn-ghost btn-error"
+                        (click)="toggleEdit(menu)"
+                      >
+                        ❌
+                      </button>
+                      <button
+                        class="btn btn-ghost btn-success pr-0 text-success"
+                        (click)="saveChanges(menu)"
+                      >
+                        Сохранить
+                        <span class="btn btn-soft btn-success">✅</span>
+                      </button>
+                    </div>
+                  </div>
+                </ng-template>
+              </div>
+            </div>
+          </div>
+
+          <!-- Группа parentId: 6 (уровень 2) -->
+          <div class="mb-8">
+            <h3 class="text-xl font-bold text-indigo-600 mb-4">
+              Меню по кнопке 6
+            </h3>
+            <div *ngFor="let menu of getMenusByParentId(6); let i = index">
+              <div
+                class="collapse hover-shadow card-body bg-base-100 my-4 rounded-xl p-[20px] pb-[10px] shadow-block"
+              >
+                <input type="checkbox" (click)="toggleClick(i)" />
+                <div
+                  class="collapse-title text-xl font-medium flex items-center justify-between radius-30 cursor-pointer"
+                  [ngClass]="{ 'bg-main': activeIndexes.has(i) }"
+                >
+                  <h3 class="text-gray-600 font-bold text-xl">
+                    <span class="text-gray-600 pr-2">{{
+                      menu.order + 1 + 6
+                    }}</span>
+                    {{ menu.name || "Unnamed" }}
+                  </h3>
+                  <button
+                    class="btn btn-ghost btn-info pr-0 relative z-10"
+                    (click)="toggleEdit(menu, $event)"
+                  >
+                    Редактировать
+                    <span class="btn btn-soft btn-info">
+                      <app-edit-ico></app-edit-ico>
+                    </span>
+                  </button>
+                </div>
+
+                <div class="collapse-content px-0">
+                  <div *ngIf="!menu.isEditing; else editForm">
+                    <div
+                      class="flex justify-between py-4 items-center w-[95%] mx-auto"
+                    >
+                      <p class="number text-lg">
+                        💬
+                        <span class="font-bold text-indigo-600"
+                          >Сообщение №{{ i + 1 }}</span
+                        >
+                        <span class="nj-toast">
+                          {{
+                            getMenuLevel(menu) !== null
+                              ? getMenuLevel(menu)
+                              : "N/A"
+                          }}
+                        </span>
+                      </p>
+                      <p class="text-end text-gray-400 text-xs flex-auto">
+                        Последнее обновление:
+                        {{ menu.updated_at | date : "medium" }}
+                      </p>
+                    </div>
+
+                    <!-- Связанный пост -->
+                    <div
+                      class="menu-post-item mb-[40px]"
+                      *ngIf="menu.linked_post"
+                    >
+                      <div
+                        class="card bg-base-100 mx-auto w-[100%] shadow-block"
+                      >
+                        <div *ngIf="menu.linked_post.message_image_url">
+                          <figure>
+                            <img
+                              [src]="
+                                menu.linked_post.message_image_url ||
+                                'path/to/fallback-image.jpg'
+                              "
+                              alt="Post Image"
+                            />
+                          </figure>
+                        </div>
+                        <div class="card-body">
+                          <p class="text-indigo-600">
+                            ID: {{ menu.linked_post.id }}
+                          </p>
+                          <h3 class="text-xl text-indigo-400 font-bold">
+                            {{ menu.linked_post.message_title || "No Title" }}
+                          </h3>
+                          <p>
+                            {{
+                              menu.linked_post.message_content || "No Content"
+                            }}
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- Кнопки связанного поста -->
+                      <div
+                        *ngIf="menu.linked_post.buttons?.length"
+                        class="flex flex-col gap-2 mt-4"
+                      >
+                        <h4 class="text-lg font-bold text-indigo-400">
+                          Кнопки поста:
+                        </h4>
+                        <div
+                          *ngFor="let buttonWrapper of menu.linked_post.buttons"
+                          class="collapse collapse-arrow bg-base-100 shadow-block rounded-[22px]"
+                        >
+                          <input type="checkbox" class="peer" />
+                          <div
+                            class="collapse-title text-indigo-400 bg-base-100 peer-checked:bg-main peer-checked:text-white font-bold text-lg"
+                          >
+                            {{ buttonWrapper.button.name || "Unnamed Button" }}
+                          </div>
+                          <div class="collapse-content">
+                            <div
+                              class="sub-btn-date flex justify-between text-gray-400 text-xs py-2 px-4"
+                            >
+                              <span>
+                                Дата создания:
+                                {{
+                                  buttonWrapper.button.created_at
+                                    | date : "medium"
+                                }}
+                              </span>
+                              <span>
+                                Обновлено:
+                                {{
+                                  buttonWrapper.button.updated_at
+                                    | date : "medium"
+                                }}
+                              </span>
+                            </div>
+                            <div
+                              class="sub-btn-body-wrapper flex flex-col gap-2"
+                            >
+                              <div
+                                class="sub-btn-body flex justify-between items-center"
+                              >
+                                <div
+                                  class="sub-btn-body-title text-lg font-bold text-indigo-400 flex gap-2"
+                                >
+                                  <span>{{
+                                    buttonWrapper.button.name ||
+                                      "Unnamed Button"
+                                  }}</span>
+                                </div>
+                                <div
+                                  class="sub-btn-body-order font-bold flex gap-4 items-center"
+                                >
+                                  <div class="order">
+                                    Order:
+                                    <span class="nj-toast-trans">{{
+                                      buttonWrapper.button.order
+                                    }}</span>
+                                  </div>
+                                </div>
+                              </div>
+                              <div
+                                class="sub-btn-url"
+                                *ngIf="buttonWrapper.button.url"
+                              >
+                                Url: {{ buttonWrapper.button.url }}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <!-- Форма редактирования -->
+                  <ng-template #editForm>
+                    <div class="card-body edit-form">
+                      <label class="block text-sm text-indigo-400 font-bold"
+                        >Название меню</label
+                      >
+                      <input
+                        [(ngModel)]="menu.name"
+                        type="text"
+                        placeholder="Введите название"
+                        class="input block w-full mt-2 placeholder-gray-500 border border-indigo-200 bg-white px-5 py-2.5 text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-40"
+                      />
+                      <label
+                        class="block text-sm text-indigo-400 font-bold mt-4"
+                        >Описание</label
+                      >
+                      <textarea
+                        [(ngModel)]="menu.description"
+                        placeholder="Описание меню"
+                        class="block mt-2 w-full h-[100px] placeholder-gray-500 border border-indigo-200 bg-white px-4 py-2.5 text-gray-800 focus:border-indigo-500 focus:outline-none focus:ring focus:ring-indigo-300 focus:ring-opacity-40 rounded-[22px]"
+                      ></textarea>
+                      <div class="card-actions justify-center pt-[20px]">
+                        <button
+                          class="btn btn-ghost btn-error"
+                          (click)="toggleEdit(menu)"
+                        >
+                          ❌
+                        </button>
+                        <button
+                          class="btn btn-ghost btn-success pr-0 text-success"
+                          (click)="saveChanges(menu)"
+                        >
+                          Сохранить
+                          <span class="btn btn-soft btn-success">✅</span>
+                        </button>
+                      </div>
+                    </div>
+                  </ng-template>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Шаблон загрузки -->
+  <ng-template #loading>
+    <app-loader></app-loader>
+  </ng-template>
+</section>

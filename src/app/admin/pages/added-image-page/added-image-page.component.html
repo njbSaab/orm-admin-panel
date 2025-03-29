@@ -1,0 +1,103 @@
+<section class="added-image py-[0px] px-[10px] min-h-screen">
+  <div
+    class="header-title shadow-block flex items-center justify-between w-[100%]"
+  >
+    <h1 class="title text-2xl font-bold text-indigo-500">Image</h1>
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      width="40"
+      height="40"
+      viewBox="0 0 24 24"
+    >
+      <g
+        fill="none"
+        stroke="#4f45e5"
+        stroke-linecap="round"
+        stroke-linejoin="round"
+        stroke-width="2"
+      >
+        <path
+          stroke-dasharray="72"
+          stroke-dashoffset="72"
+          d="M3 14v-9h18v14h-18v-5"
+        >
+          <animate
+            fill="freeze"
+            attributeName="stroke-dashoffset"
+            dur="0.6s"
+            values="72;0"
+          />
+        </path>
+        <path
+          stroke-dasharray="24"
+          stroke-dashoffset="24"
+          stroke-width="1"
+          d="M3 16l4 -3l3 2l6 -5l5 4"
+        >
+          <animate
+            fill="freeze"
+            attributeName="stroke-dashoffset"
+            begin="0.6s"
+            dur="0.4s"
+            values="24;0"
+          />
+        </path>
+      </g>
+      <g fill="#4f45e5" fill-opacity="0">
+        <circle cx="7.5" cy="9.5" r="1.5">
+          <animate
+            fill="freeze"
+            attributeName="fill-opacity"
+            begin="1s"
+            dur="0.2s"
+            values="0;1"
+          />
+        </circle>
+        <path d="M3 16l4 -3l3 2l6 -5l5 4V19H3Z">
+          <animate
+            fill="freeze"
+            attributeName="fill-opacity"
+            begin="1.3s"
+            dur="0.15s"
+            values="0;0.3"
+          />
+        </path>
+      </g>
+    </svg>
+  </div>
+  <div class="radius-30 shadow-block h-[90dvh]">
+    <div
+      class="content py-[30px] relative flex flex-col justify-center items-center gap-[30px] cursor-copy"
+    >
+      <div class="text flex flex-col items-center justify-center">
+        <p class="text-2xl font-bold text-indigo-400">Кликните здесь</p>
+        <p class="text-lg text-gray-600 font-semibold text-center">
+          Чтоб вставить картинку нужно кликнуть здесь либо перетащите
+          изображение в этот блок
+        </p>
+      </div>
+      <div class="image max-w-[500px] w-full h-auto mx-auto text-gray-200">
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          class="w-full h-auto"
+          viewBox="0 0 24 24"
+        >
+          <!-- Icon from Google Material Icons by Material Design Authors - https://github.com/material-icons/material-icons/blob/master/LICENSE -->
+          <path
+            fill="currentColor"
+            d="m10.21 16.83l-1.96-2.36L5.5 18h11l-3.54-4.71z"
+          />
+          <path
+            fill="currentColor"
+            d="M16.5 18h-11l2.75-3.53l1.96 2.36l2.75-3.54zM17 7h-3V6H4v14h14V10h-1z"
+            opacity=".3"
+          />
+          <path
+            fill="currentColor"
+            d="M20 4V1h-2v3h-3v2h3v2.99h2V6h3V4zm-2 16H4V6h10V4H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V10h-2z"
+          />
+        </svg>
+      </div>
+    </div>
+  </div>
+</section>
